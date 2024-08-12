@@ -1,13 +1,20 @@
-interface ButtonProps {
-  label: String;
+import React from "react";
+
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  label: string;
   icon: React.ReactElement;
 }
 
-export default function Button({ label, icon }: ButtonProps) {
+const Button: React.FC<ButtonProps> = ({ label, icon, ...props }) => {
   return (
-    <button className="text-sky-500 hover:text-sky-700 w-40 text-start p-1.5 rounded-md">
+    <button
+      className="flex gap-2 text-sky-500 hover:text-sky-700 text-start p-1.5 rounded-md"
+      {...props}
+    >
       {icon}
       {label}
     </button>
   );
-}
+};
+
+export default Button;
