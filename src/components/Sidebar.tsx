@@ -1,6 +1,8 @@
 "use client";
+import Banks from "@/app/banks/page";
 import Dashboard from "@/app/dashboard/page";
-import { ArrowLeftRight, Home, Settings } from "lucide-react";
+import Finances from "@/app/finances/page";
+import { ArrowLeftRight, CreditCard, Home, Settings } from "lucide-react";
 import React, { useState } from "react";
 
 interface SidebarItemProps {
@@ -28,7 +30,12 @@ const sidebarItems = [
   {
     label: "finances",
     icon: <ArrowLeftRight />,
-    page: <div>Finances Page</div>,
+    page: <Finances />,
+  },
+  {
+    label: "banks",
+    icon: <CreditCard />,
+    page: <Banks />,
   },
   { label: "settings", icon: <Settings />, page: <div>Settings Page</div> },
 ];
@@ -49,7 +56,7 @@ const Sidebar = ({
     <aside className="p-8 h-screen">
       <div className="flex flex-col justify-between items-center h-full">
         <ul className="flex flex-col gap-4">
-          {sidebarItems.slice(0, 2).map((item) => (
+          {sidebarItems.slice(0, 3).map((item) => (
             <SidebarItem
               key={item.label}
               icon={item.icon}
@@ -60,7 +67,7 @@ const Sidebar = ({
           ))}
         </ul>
         <ul>
-          {sidebarItems.slice(2, 3).map((item) => (
+          {sidebarItems.slice(3, 4).map((item) => (
             <SidebarItem
               key={item.label}
               icon={item.icon}
