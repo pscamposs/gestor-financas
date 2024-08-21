@@ -61,7 +61,6 @@ export default function BankChart({ data }: { data: InvoiceProps[] }) {
 
   useEffect(() => {
     const totals = data.reduce((acc, invoice) => {
-      console.log(invoice);
       const { bank_label, value, flow } = invoice;
 
       if (flow != "Entrada") {
@@ -82,7 +81,6 @@ export default function BankChart({ data }: { data: InvoiceProps[] }) {
 
     setBanks(totals);
     setBanksTotal(total);
-    console.log(totals, total);
   }, [data]);
 
   return (

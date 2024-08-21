@@ -2,76 +2,12 @@ import React from "react";
 import {
   BarChart,
   Bar,
-  Rectangle,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   Legend,
 } from "recharts";
-
-const data = [
-  {
-    name: "Jan",
-    Entrada: 4000,
-    Saida: 2400,
-  },
-  {
-    name: "Fev",
-    Entrada: 4000,
-    Saida: 2400,
-  },
-  {
-    name: "Mar",
-    Entrada: 4000,
-    Saida: 2400,
-  },
-  {
-    name: "Abr",
-    Entrada: 4000,
-    Saida: 2400,
-  },
-  {
-    name: "Mai",
-    Entrada: 4000,
-    Saida: 2400,
-  },
-  {
-    name: "Jun",
-    Entrada: 4000,
-    Saida: 2400,
-  },
-  {
-    name: "Jul",
-    Entrada: 4000,
-    Saida: 2400,
-  },
-  {
-    name: "Ago",
-    Entrada: 4000,
-    Saida: 2400,
-  },
-  {
-    name: "Set",
-    Entrada: 4000,
-    Saida: 2400,
-  },
-  {
-    name: "Out",
-    Entrada: 4000,
-    Saida: 2400,
-  },
-  {
-    name: "Nov",
-    Entrada: 4000,
-    Saida: 2400,
-  },
-  {
-    name: "Dez",
-    Entrada: 4000,
-    Saida: 2400,
-  },
-];
 
 const getMetrics = (data: InvoiceProps[]) => {
   const metrics: { name: string; Entrada: number; Saida: number }[] = [];
@@ -93,10 +29,16 @@ const getMetrics = (data: InvoiceProps[]) => {
   data.forEach((invoice) => {
     const invoiceDate = new Date(invoice.date);
     const month = invoiceDate.getMonth();
+    const day = invoiceDate.getDate();
 
-    let metric = metrics.find((m) => m.name === monthNames[month]);
+    let adjustedMonth = month;
+    if (day > invoice.bank_closing_day) {
+      adjustedMonth = (month + 1) % 12;
+    }
+
+    let metric = metrics.find((m) => m.name === monthNames[adjustedMonth]);
     if (!metric) {
-      metric = { name: monthNames[month], Entrada: 0, Saida: 0 };
+      metric = { name: monthNames[adjustedMonth], Entrada: 0, Saida: 0 };
       metrics.push(metric);
     }
 
@@ -106,7 +48,6 @@ const getMetrics = (data: InvoiceProps[]) => {
       metric.Saida += Number(invoice.value) / 100;
     }
   });
-
   metrics.sort(
     (a, b) => monthNames.indexOf(a.name) - monthNames.indexOf(b.name)
   );
