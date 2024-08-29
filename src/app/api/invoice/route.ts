@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import pool from "@/app/libs/mysql";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/services/auth";
+import executeQuery from "@/services/mysql";
 
 export async function GET() {
-  const db = await pool.getConnection();
+  const session = await getServerSession(authOptions);
+  const userId = session.user.id;
 
   try {
-    const query = "call get_user_invoices(1)";
-    const [rows]: any = await db.execute(query);
+    const query = `call get_user_invoices(${userId})`;
+    const [rows]: any = await executeQuery(query);
     const invoiceData = rows[0];
 
     return NextResponse.json(invoiceData);
@@ -17,17 +20,15 @@ export async function GET() {
       },
       { status: 500 }
     );
-  } finally {
-    db.release();
   }
 }
 
 export async function POST(request: NextRequest) {
-  const db = await pool.getConnection();
+  const session = await getServerSession(authOptions);
+  const userId = session.user.id;
 
   try {
     const data = await request.json();
-    const userId = 1;
 
     const { method, flow, name, date, installments, description, value, bank } =
       data;
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    await db.query(query, [
+    await executeQuery(query, [
       userId,
       date,
       installments,
@@ -68,13 +69,12 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     );
-  } finally {
-    db.release();
   }
 }
 
 export async function PUT(request: NextRequest) {
-  const db = await pool.getConnection();
+  const session = await getServerSession(authOptions);
+  const userId = session.user.id;
 
   try {
     const data = await request.json();
@@ -87,13 +87,14 @@ export async function PUT(request: NextRequest) {
       installments,
       description,
       value,
-      bank,
+      bank_id,
     } = data;
 
     if (!id) {
       return NextResponse.json(
         {
-          error: "ID da fatura é necessário.",
+          error: true,
+          message: "Fatura inválida.",
         },
         {
           status: 400,
@@ -104,10 +105,10 @@ export async function PUT(request: NextRequest) {
     const query = `
       UPDATE user_invoices
       SET method = ?, flow = ?, name = ?, date = ?, installments = ?, description = ?, value = ?, bank_id = ?
-      WHERE id = ?
+      WHERE id = ? AND user_id = ?
     `;
 
-    const result = await db.query(query, [
+    const result = await executeQuery(query, [
       method,
       flow,
       name,
@@ -115,14 +116,16 @@ export async function PUT(request: NextRequest) {
       installments,
       description,
       value,
-      bank,
+      bank_id,
       id,
+      userId,
     ]);
 
     if (result.affectedRows === 0) {
       return NextResponse.json(
         {
-          error:
+          error: true,
+          message:
             "Fatura não encontrada ou você não tem permissão para atualizá-la.",
         },
         {
@@ -141,16 +144,12 @@ export async function PUT(request: NextRequest) {
       }
     );
   } catch (error: any) {
-    console.error(error);
-
     return NextResponse.json(
       {
-        error: "Ops, ocorreu um erro.",
-        details: error.message,
+        error: true,
+        message: error.message,
       },
       { status: 500 }
     );
-  } finally {
-    db.release();
   }
 }

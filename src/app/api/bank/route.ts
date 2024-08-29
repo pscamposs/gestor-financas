@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import pool from "@/app/libs/mysql";
+import { z } from "zod";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/services/auth";
+import executeQuery from "@/services/mysql";
 
 export async function GET() {
-  const db = await pool.getConnection();
+  const session = await getServerSession(authOptions);
+  const userId = session.user.id;
 
   try {
     const query =
-      "select id, label, invoice_closing_day, color, icon from user_banks";
-    const [rows]: any = await db.execute(query);
+      "select id, label, invoice_closing_day, color, icon from user_banks where bank_user_id = ?";
+    const [rows]: any = await executeQuery(query, [userId]);
     return NextResponse.json(rows);
   } catch (error) {
     return NextResponse.json(
@@ -16,25 +20,47 @@ export async function GET() {
       },
       { status: 500 }
     );
-  } finally {
-    db.release();
   }
 }
 
 export async function POST(request: NextRequest) {
-  const db = await pool.getConnection();
+  const session = await getServerSession(authOptions);
+  const userId = session.user.id;
 
   try {
     const data = await request.json();
 
-    const { label, invoice_closing_day, color, icon } = data;
+    const bankSchema = z.object({
+      label: z.string().min(1, "O campo 'label' é obrigatório."),
+      invoice_closing_day: z
+        .number()
+        .int()
+        .min(1)
+        .max(
+          31,
+          "O dia de fechamento da fatura deve ser um número entre 1 e 31."
+        ),
+      color: z
+        .string()
+        .min(1)
+        .regex(/^#[0-9A-Fa-f]{6}$/),
+      icon: z.string().min(1, "O campo 'icon' é obrigatório."),
+    });
 
     const query = `
-      INSERT INTO user_banks (label, invoice_closing_day, color, icon)
-      VALUES (?, ?, ?, ?)
+      INSERT INTO user_banks (label, invoice_closing_day, color, icon, bank_user_id)
+      VALUES (?, ?, ?, ?, ?)
     `;
+    const parsedData = bankSchema.parse(data);
+    const { label, invoice_closing_day, color, icon } = parsedData;
 
-    await db.query(query, [label, invoice_closing_day, color, String(icon)]);
+    await executeQuery(query, [
+      label,
+      invoice_closing_day,
+      color,
+      icon,
+      userId,
+    ]);
 
     return NextResponse.json(
       {
@@ -46,22 +72,28 @@ export async function POST(request: NextRequest) {
       }
     );
   } catch (error: any) {
-    console.error(error);
+    let errorMessage = "Ops, ocorreu um erro.";
+    let details = error.message;
+
+    if (error instanceof z.ZodError) {
+      errorMessage =
+        "Erro de validação: " + error.errors.map((e) => e.message).join(", ");
+      details = error.issues.map((e) => e.message).join(", ");
+    }
 
     return NextResponse.json(
       {
-        error: "Ops, ocorreu um erro.",
-        details: error.message,
+        error: true,
+        message: errorMessage,
       },
       { status: 500 }
     );
-  } finally {
-    db.release();
   }
 }
 
 export async function PUT(request: NextRequest) {
-  const db = await pool.getConnection();
+  const session = await getServerSession(authOptions);
+  const userId = session.user.id;
 
   try {
     const data = await request.json();
@@ -70,7 +102,8 @@ export async function PUT(request: NextRequest) {
     if (!id) {
       return NextResponse.json(
         {
-          error: "ID do banco é necessário.",
+          error: true,
+          message: "ID do banco é necessário.",
         },
         {
           status: 400,
@@ -80,21 +113,23 @@ export async function PUT(request: NextRequest) {
 
     const query = `
       UPDATE user_banks
-      SET label = ?, invoice_closing_day = ?, color = ?, icon = ? WHERE id = ?
+      SET label = ?, invoice_closing_day = ?, color = ?, icon = ? WHERE id = ? AND bank_user_id = ?
     `;
 
-    const result = await db.query(query, [
+    const result = await executeQuery(query, [
       label,
       invoice_closing_day,
       color,
-      String(icon),
+      icon,
       id,
+      userId,
     ]);
 
     if (result.affectedRows === 0) {
       return NextResponse.json(
         {
-          error:
+          error: true,
+          message:
             "Banco não encontrado ou você não tem permissão para atualizá-lo.",
         },
         {
@@ -105,6 +140,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(
       {
+        error: false,
         message: "Banco atualizado com sucesso.",
         data,
       },
@@ -117,12 +153,10 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(
       {
-        error: "Ops, ocorreu um erro.",
-        details: error.message,
+        error: true,
+        message: error.message,
       },
       { status: 500 }
     );
-  } finally {
-    db.release();
   }
 }

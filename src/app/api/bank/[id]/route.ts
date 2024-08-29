@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import pool from "@/app/libs/mysql";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/services/auth";
+import executeQuery from "@/services/mysql";
 
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const db = await pool.getConnection();
+  const session = await getServerSession(authOptions);
+  const userId = session.user.id;
 
   try {
     const { id } = params;
@@ -13,7 +16,8 @@ export async function DELETE(
     if (!id) {
       return NextResponse.json(
         {
-          error: "ID da fatura é necessário.",
+          error: true,
+          message: "ID da fatura é necessário.",
         },
         {
           status: 400,
@@ -23,15 +27,16 @@ export async function DELETE(
 
     const query = `
       DELETE FROM user_banks
-      WHERE id = ?
+      WHERE id = ? AND bank_user_id = ?
     `;
 
-    const result = await db.query(query, [id]);
+    const result = await executeQuery(query, [id, userId]);
 
     if (result.affectedRows === 0) {
       return NextResponse.json(
         {
-          error:
+          error: true,
+          message:
             "Banco não encontrado ou você não tem permissão para excluí-lo.",
         },
         {
@@ -42,6 +47,7 @@ export async function DELETE(
 
     return NextResponse.json(
       {
+        error: false,
         message: "Banco excluído com sucesso.",
       },
       {
@@ -53,12 +59,10 @@ export async function DELETE(
 
     return NextResponse.json(
       {
-        error: "Ops, ocorreu um erro.",
-        details: error.message,
+        error: true,
+        message: error.message,
       },
       { status: 500 }
     );
-  } finally {
-    db.release();
   }
 }
