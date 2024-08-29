@@ -1,4 +1,6 @@
-import React from "react";
+'use client';
+
+import React, { ReactElement, useState } from "react";
 
 interface DropDownOption {
   label: string;
@@ -6,12 +8,12 @@ interface DropDownOption {
 }
 
 interface DropDownProps {
-  icon: React.ReactElement;
+  icon: ReactElement;
   options: DropDownOption[];
 }
 
 export default function DropDown({ icon, options }: DropDownProps) {
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleMouseEnter = () => {
     setIsOpen(true);

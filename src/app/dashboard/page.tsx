@@ -1,3 +1,4 @@
+"use client";
 import Card from "@/components/Card";
 import BankChart from "@/components/charts/BankChart";
 import InvoiceChart from "@/components/charts/InvoiceChart";
@@ -12,7 +13,6 @@ import {
   ChartBar,
   FileChartColumnIncreasing,
 } from "lucide-react";
-import { useMemo } from "react";
 
 export default function Dashboard() {
   const { sendAlert } = useAlert();

@@ -1,3 +1,4 @@
+"use client";
 import Button from "@/components/Button";
 import DropDown from "@/components/Dropdown";
 import Loader from "@/components/Loader";

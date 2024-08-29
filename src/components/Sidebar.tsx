@@ -5,13 +5,13 @@ import Finances from "@/app/finances/page";
 import SettingsPage from "@/app/settings/setting";
 import { ArrowLeftRight, CreditCard, Home, Settings } from "lucide-react";
 import { useSession } from "next-auth/react";
-import React, { useState } from "react";
+import React, { ReactElement, useState } from "react";
 
 interface SidebarItemProps {
-  icon: React.ReactElement;
+  icon: ReactElement;
   isActive: boolean;
-  page: React.ReactElement;
-  onClick: (page: React.ReactElement) => void;
+  page: ReactElement;
+  onClick: (page: ReactElement) => void;
 }
 
 const SidebarItem = ({ icon, isActive, page, onClick }: SidebarItemProps) => {
@@ -42,14 +42,10 @@ const sidebarItems = [
   { label: "settings", icon: <Settings />, page: <SettingsPage /> },
 ];
 
-const Sidebar = ({
-  setView,
-}: {
-  setView: (page: React.ReactElement) => void;
-}) => {
+const Sidebar = ({ setView }: { setView: (page: ReactElement) => void }) => {
   const [activeItem, setActiveItem] = useState<string>("home");
 
-  const handleClick = (label: string, page: React.ReactElement) => {
+  const handleClick = (label: string, page: ReactElement) => {
     setActiveItem(label);
     setView(page);
   };

@@ -1,14 +1,14 @@
 import { formatCurrency } from "@/utils/FormatterUtils";
 import { Eye, EyeOff } from "lucide-react";
-import { useState } from "react";
+import { FC, InputHTMLAttributes, useState } from "react";
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
   required?: boolean;
   description?: string;
 }
 
-export const Input: React.FC<InputProps> = ({ ...props }) => {
+export const Input: FC<InputProps> = ({ ...props }) => {
   const [inFocus, setInFocus] = useState(false);
   const [visible, setVisible] = useState(props.type !== "password");
 

@@ -1,9 +1,9 @@
+"use client";
 import { isValidSvg } from "@/utils/FormatterUtils";
 import { Input } from "../Input";
 import { TextArea } from "../TextArea";
 import { useModal } from "@/hook/use-modal-context";
-import { useState } from "react";
-import Button from "../Button";
+import { ChangeEvent, FormEvent, useState } from "react";
 import { useAlert } from "@/hook/use-alert-contex";
 
 interface InvoiceModalProps {
@@ -19,7 +19,7 @@ export default function BankModal({ data, refetch }: InvoiceModalProps) {
 
   let { sendAlert } = useAlert();
 
-  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (data) {
@@ -58,7 +58,7 @@ export default function BankModal({ data, refetch }: InvoiceModalProps) {
     }
   }
 
-  const handleInputChange = (e: React.ChangeEvent<any>) => {
+  const handleInputChange = (e: ChangeEvent<any>) => {
     const { name, value: data } = e.target;
 
     let value: any = data;

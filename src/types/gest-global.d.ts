@@ -32,8 +32,7 @@ interface BankProps {
   icon: string;
   invoice_closing_day: number;
 }
-
-interface SelectorProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface SelectorProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
   options: OptionProps[];
   onChangeHandler?: (value: OptionProps[]) => void;

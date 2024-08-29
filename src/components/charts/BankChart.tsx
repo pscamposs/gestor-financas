@@ -1,6 +1,6 @@
 "use client";
 import { formatCurrency } from "@/utils/FormatterUtils";
-import React, { useEffect, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 
 const calcProgress = (bankTotal: number, total: number) => {
   return total === 0 ? 0 : Math.round((bankTotal / total) * 100);
@@ -23,7 +23,7 @@ const ProgressBar = ({
   );
 };
 
-const BankMetric: React.FC<{
+const BankMetric: FC<{
   bank: string;
   total: number;
   overallTotal: number;

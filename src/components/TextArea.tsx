@@ -1,10 +1,11 @@
-interface TextAreaProps
-  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+import { FC, TextareaHTMLAttributes } from "react";
+
+interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label: string;
   description?: string;
 }
 
-export const TextArea: React.FC<TextAreaProps> = ({ label, ...props }) => {
+export const TextArea: FC<TextAreaProps> = ({ label, ...props }) => {
   return (
     <div className="text-sm ">
       <label htmlFor={label} className="block text-zinc-600 my-0.5 rounded ">

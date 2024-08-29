@@ -1,11 +1,11 @@
-import React from "react";
+import React, { ButtonHTMLAttributes, FC, ReactElement } from "react";
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   label: string;
-  icon: React.ReactElement;
+  icon: ReactElement;
 }
 
-const Button: React.FC<ButtonProps> = ({ label, icon, ...props }) => {
+const Button: FC<ButtonProps> = ({ label, icon, ...props }) => {
   return (
     <button
       className="flex gap-2 text-sky-500 hover:text-sky-700 text-start p-1.5 rounded-md"

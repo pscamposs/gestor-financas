@@ -1,9 +1,11 @@
+import { ReactElement } from "react";
+
 interface CardProps {
   title: string;
   subtitle: string;
   value: any;
   baseTitle: string;
-  icon?: React.ReactElement;
+  icon?: ReactElement;
 }
 
 export default function Card({

@@ -1,5 +1,13 @@
 import { X } from "lucide-react";
-import { useState, useRef, useEffect, useCallback } from "react";
+import {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  InputHTMLAttributes,
+  FC,
+  ChangeEvent,
+} from "react";
 
 interface OptionProps {
   label: string;
@@ -16,16 +24,13 @@ interface SelectorItemProps {
   option: OptionProps;
 }
 
-interface SelectorProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface SelectorProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
   options: OptionProps[];
   onChangeHandler?: (selectedItems: OptionProps[]) => void;
 }
 
-const SelectorListItem: React.FC<SelectorListItemProps> = ({
-  onClick,
-  option,
-}) => (
+const SelectorListItem: FC<SelectorListItemProps> = ({ onClick, option }) => (
   <li
     className="cursor-pointer p-2 bg-zinc-50 hover:bg-zinc-200 transition-all"
     onClick={() => onClick(option)}
@@ -43,7 +48,7 @@ const SelectorListItem: React.FC<SelectorListItemProps> = ({
   </li>
 );
 
-const SelectorItem: React.FC<SelectorItemProps> = ({ onClick, option }) => (
+const SelectorItem: FC<SelectorItemProps> = ({ onClick, option }) => (
   <button
     className="flex bg-sky-200 text-xs items-center gap-1 p-1.5 hover:bg-sky-100 transition-all"
     onClick={() => onClick(option)}
@@ -62,7 +67,7 @@ const SelectorItem: React.FC<SelectorItemProps> = ({ onClick, option }) => (
   </button>
 );
 
-export const Selector: React.FC<SelectorProps> = ({
+export const Selector: FC<SelectorProps> = ({
   label,
   options,
   onChangeHandler,
@@ -94,7 +99,7 @@ export const Selector: React.FC<SelectorProps> = ({
     onChangeHandler?.(newSelectedItems);
   };
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value.toLowerCase();
     setFilteredOptions(
       options.filter((option) => option.label.toLowerCase().includes(value))

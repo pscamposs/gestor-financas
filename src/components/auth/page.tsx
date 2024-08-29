@@ -3,7 +3,7 @@
 import { Input } from "@/components/Input";
 import { useAlert } from "@/hook/use-alert-contex";
 import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 
 export function AuthPage() {
   const { sendAlert } = useAlert();
@@ -15,14 +15,14 @@ export function AuthPage() {
     password: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setCredentials({
       ...credentials,
       [e.target.name]: e.target.value,
     });
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     setLoading(true);

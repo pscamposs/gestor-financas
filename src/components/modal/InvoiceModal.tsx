@@ -1,7 +1,9 @@
+"use client";
+"use client";
 import { Input } from "../Input";
 import { TextArea } from "../TextArea";
 import { useModal } from "@/hook/use-modal-context";
-import { useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import { Selector } from "../Selector";
 import { useQuery } from "@tanstack/react-query";
 
@@ -42,7 +44,7 @@ export default function InvoiceModal({ data, refetch }: InvoiceModalProps) {
 
   let [formData, setFormData] = useState<InvoiceProps | any>(initialData);
 
-  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (data) {
@@ -66,7 +68,7 @@ export default function InvoiceModal({ data, refetch }: InvoiceModalProps) {
     }
   }
 
-  const handleInputChange = (e: React.ChangeEvent<any>) => {
+  const handleInputChange = (e: ChangeEvent<any>) => {
     setFormData((prev: any) => ({
       ...prev,
       [e.target.name]: e.target.value,

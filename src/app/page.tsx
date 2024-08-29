@@ -1,6 +1,5 @@
-// Organize os imports
 "use client";
-import { useState, useMemo } from "react";
+import { useState, ReactNode, ReactElement } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SessionProvider } from "next-auth/react";
 
@@ -12,33 +11,33 @@ import { AlertContextProvider } from "@/context/useAlert";
 import { Alerts } from "@/components/Alerts";
 import Private from "@/components/Private";
 
-function AppProviders({ children }: { children: React.ReactNode }) {
-  const queryClient = useMemo(() => new QueryClient({}), []);
-
+function AppProviders({ children }: { children: ReactNode }) {
   return (
     <SessionProvider>
-      <QueryClientProvider client={queryClient}>
-        <AlertContextProvider>
-          <ModalContextProvider>{children}</ModalContextProvider>
-        </AlertContextProvider>
-      </QueryClientProvider>
+      <AlertContextProvider>
+        <ModalContextProvider>{children}</ModalContextProvider>
+      </AlertContextProvider>
     </SessionProvider>
   );
 }
 
+const queryClient = new QueryClient();
+
 export default function Home() {
-  const [viewPage, setViewPage] = useState<React.ReactElement>(<Dashboard />);
+  const [viewPage, setViewPage] = useState<ReactElement>(<Dashboard />);
 
   return (
-    <AppProviders>
-      <main className="flex overflow-hidden">
-        <Alerts />
-        <Private>
-          <Sidebar setView={setViewPage} />
-          <section className="flex-1 p-4 w-dvw">{viewPage}</section>
-        </Private>
-        <ModalContainer />
-      </main>
-    </AppProviders>
+    <QueryClientProvider client={queryClient}>
+      <AppProviders>
+        <main className="flex overflow-hidden">
+          <Alerts />
+          <Private>
+            <Sidebar setView={setViewPage} />
+            <section className="flex-1 p-4 w-dvw">{viewPage}</section>
+          </Private>
+          <ModalContainer />
+        </main>
+      </AppProviders>
+    </QueryClientProvider>
   );
 }
