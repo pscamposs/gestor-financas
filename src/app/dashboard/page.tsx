@@ -1,58 +1,87 @@
-import Button from "@/components/Button";
 import Card from "@/components/Card";
 import BankChart from "@/components/charts/BankChart";
 import InvoiceChart from "@/components/charts/InvoiceChart";
+import Loader from "@/components/Loader";
+import { useAlert } from "@/hook/use-alert-contex";
 import { useCalculateTotals } from "@/hook/use-calculate";
 import { formatCurrency } from "@/utils/FormatterUtils";
 import { useQuery } from "@tanstack/react-query";
 import {
-  BookOpen,
   BookUser,
-  Calculator,
   Calendar,
   ChartBar,
-  CreditCard,
   FileChartColumnIncreasing,
 } from "lucide-react";
+import { useMemo } from "react";
 
-const useDashboardData = () => {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["fetchDashboard"],
+export default function Dashboard() {
+  const { sendAlert } = useAlert();
+
+  const {
+    data: profileData,
+    isLoading: profileIsLoading,
+    error: profileError,
+  } = useQuery({
+    queryKey: ["profile"],
     queryFn: async () => {
       const response = await fetch("/api/profile");
-      const data = await response.json();
-      return data;
+      if (!response.ok)
+        sendAlert({
+          title: "Ops",
+          message: "Erro ao buscar perfil",
+          variant: "error",
+        });
+      return response.json();
     },
   });
 
-  return { data, isLoading, error };
-};
+  const {
+    data: invoices,
+    isLoading: invoicesIsLoading,
+    error: invoicesError,
+  } = useQuery({
+    queryKey: ["fetchInvoices"],
+    queryFn: async () => {
+      const response = await fetch("/api/invoice");
+      if (!response.ok)
+        sendAlert({
+          title: "Ops",
+          message: "Erro ao buscar faturas",
+          variant: "error",
+        });
+      return response.json() as Promise<InvoiceProps[]>;
+    },
+  });
 
-export default function Dashboard() {
-  const { data, isLoading, error } = useDashboardData();
-  const { creditTotal, monthlyTotal, annualTotal } = useCalculateTotals(
-    data?.invoices
+  const { creditTotal, annualTotal, limitTotal } = useCalculateTotals(
+    invoices,
+    profileData?.profile?.salary
   );
-  if (isLoading || !data) return <div>loading...</div>;
 
-  const availableLimit = data.profile.salary - monthlyTotal;
+  const isLoading = profileIsLoading || invoicesIsLoading;
+  const isError = profileError || invoicesError;
+
+  const userName = profileData?.profile?.name ?? "...";
+  const userSalary = profileData?.profile?.salary ?? 0;
+
+  if (isLoading || isError) return <Loader />;
 
   return (
     <section>
       <h1 className="text-3xl">Dashboard</h1>
       <div className="flex flex-wrap py-4">
         <Card
-          title={`Olá ${data.profile.name}`}
+          title={`Olá ${userName}`}
           subtitle="Salário líquido mensal"
-          value={formatCurrency(data.profile.salary)}
+          value={formatCurrency(userSalary)}
           baseTitle="Total"
           icon={<BookUser size={48} />}
         />
         <Card
-          title={`Seu limite`}
+          title="Seu limite"
           subtitle="Limite disponível"
-          value={formatCurrency(availableLimit)}
-          baseTitle="Total"
+          value={formatCurrency(limitTotal)}
+          baseTitle={`Mês ${new Date().getMonth() + 1}`}
           icon={<ChartBar size={48} />}
         />
         <Card
@@ -62,13 +91,6 @@ export default function Dashboard() {
           baseTitle="Mensal"
           icon={<FileChartColumnIncreasing size={48} />}
         />
-        {/* <Card
-          title={`Mês ${new Date().getMonth() + 1}`}
-          subtitle="Pagamento total do mês"
-          value={formatCurrency(monthlyTotal)}
-          baseTitle="Mensal"
-          icon={<FileChartColumnIncreasing size={48} />}
-        /> */}
         <Card
           title={`Ano ${new Date().getFullYear()}`}
           subtitle="Gastos totais anuais"
@@ -77,20 +99,16 @@ export default function Dashboard() {
           icon={<Calendar size={48} />}
         />
       </div>
-      <div className="flex gap-4 overflow-x-auto w-[70%]">
-        <Button label="Meus bancos" icon={<CreditCard />} />
-        <Button label="Meus empréstimos" icon={<Calculator />} />
-        <Button label="Minhas faturas" icon={<BookOpen />} />
-      </div>
+
       <div className="bg-sky-500 py-8 w-[60%] rounded-md px-4 mt-4">
         <p className="text-indigo-50 font-bold text-xl">Não há alertas</p>
       </div>
       <div className="flex flex-wrap justify-start max-md:hidden">
         <div className="overflow-x-auto">
-          <InvoiceChart data={data?.invoices} />
+          <InvoiceChart data={invoices || []} salary={userSalary} />
         </div>
         <div>
-          <BankChart data={data?.invoices} />
+          <BankChart data={invoices || []} />
         </div>
       </div>
     </section>
