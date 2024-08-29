@@ -1,21 +1,11 @@
 import { createContext, useState } from "react";
 
-interface AlertProps {
-  title: string;
-  message: string;
-  variant: "success" | "error" | "info";
-}
-
-interface AlertContextProps {
-  sendAlert: (alert: AlertProps) => void;
-}
-
 export const AlertContext = createContext({} as AlertContextProps);
 
 export const AlertContextProvider = ({
   children,
 }: {
-  children: React.ReactElement;
+  children: React.ReactNode;
 }) => {
   const [alerts, setAlerts] = useState<AlertProps[]>([]);
 
@@ -30,6 +20,7 @@ export const AlertContextProvider = ({
   return (
     <AlertContext.Provider
       value={{
+        alerts,
         sendAlert,
       }}
     >
