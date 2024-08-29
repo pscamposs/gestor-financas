@@ -42,6 +42,10 @@ export const useCalculateTotals = (
         ) {
           monthlyTotal += invoiceValue;
         }
+      } else if (invoice.flow === "Entrada") {
+        if (invoiceMonth === currentMonth) {
+          monthlyTotal -= invoiceValue;
+        }
       }
     });
 

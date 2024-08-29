@@ -31,6 +31,8 @@ const getMetrics = (data: InvoiceProps[], salary: number) => {
     "Dez",
   ];
 
+  let baseSalary = salary / 100;
+
   data.forEach((invoice) => {
     const invoiceDate = new Date(invoice.date);
     const month = invoiceDate.getMonth();
@@ -58,8 +60,7 @@ const getMetrics = (data: InvoiceProps[], salary: number) => {
       metric.Saida += Number(invoice.value) / 100;
     }
 
-    // Atualiza o valor de Limite
-    metric.Limite = salary / 100 - metric.Saida;
+    metric.Limite = baseSalary + metric.Entrada - metric.Saida;
   });
 
   metrics.sort(
@@ -108,7 +109,7 @@ export default function InvoiceChart({
         <Legend />
         <Bar dataKey="Entrada" fill="#65a30d" />
         <Bar dataKey="Saida" fill="#dc2626" />
-        <Bar dataKey="Limite" fill="#2563eb" /> {/* Barra para o limite */}
+        <Bar dataKey="Limite" fill="#2563eb" />
       </BarChart>
     </div>
   );
