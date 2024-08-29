@@ -29,27 +29,29 @@ export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
 
-    const { method, flow, name, date, installments, description, value, bank } =
+    const { date, installments, method, flow, name, description, value, bank } =
       data;
 
-    console.log("Data: ", data);
+    const sanitizeParams = (params: any) =>
+      params.map((param: any) => (param === undefined ? null : param));
 
-    const query = `
-      INSERT INTO user_invoices (user_id, date, installments, method, flow, name, description, value, bank_id)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-
-    await executeQuery(query, [
+    const parameters = sanitizeParams([
       userId,
       date,
       installments,
       method,
       flow,
       name,
-      description || "",
+      description,
       value,
       bank,
     ]);
+    const query = `
+      INSERT INTO user_invoices (user_id, date, installments, method, flow, name, description, value, bank_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    await executeQuery(query, parameters);
 
     return NextResponse.json(
       {
