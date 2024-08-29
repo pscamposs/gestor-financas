@@ -1,3 +1,4 @@
+"use client";
 import { formatCurrency } from "@/utils/FormatterUtils";
 import React, { useEffect, useState } from "react";
 

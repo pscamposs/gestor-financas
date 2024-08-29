@@ -1,9 +1,10 @@
 import { isValidSvg } from "@/utils/FormatterUtils";
 import { Input } from "../Input";
 import { TextArea } from "../TextArea";
-import useModal from "@/hook/use-modal-context";
+import { useModal } from "@/hook/use-modal-context";
 import { useState } from "react";
 import Button from "../Button";
+import { useAlert } from "@/hook/use-alert-contex";
 
 interface InvoiceModalProps {
   data?: BankProps;
@@ -16,6 +17,8 @@ export default function BankModal({ data, refetch }: InvoiceModalProps) {
   let [formData, setFormData] = useState<BankProps | any>(data);
   let [isSvgValid, setIsSvgValid] = useState<boolean>(true);
 
+  let { sendAlert } = useAlert();
+
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -25,7 +28,11 @@ export default function BankModal({ data, refetch }: InvoiceModalProps) {
       }));
     }
     if (!isSvgValid) {
-      alert("Corrija o icone do banco.");
+      sendAlert({
+        title: "Erro",
+        message: "Corrija o icone do banco.",
+        variant: "error",
+      });
       return;
     }
 
@@ -37,16 +44,29 @@ export default function BankModal({ data, refetch }: InvoiceModalProps) {
       },
     });
 
-    if (response.status == 200) {
+    if (response.ok) {
       refetch();
       closeModal();
+    } else {
+      let data = await response.json();
+      let { error, details } = data;
+      sendAlert({
+        title: error,
+        message: details,
+        variant: "error",
+      });
     }
   }
 
   const handleInputChange = (e: React.ChangeEvent<any>) => {
-    const { name, value } = e.target;
+    const { name, value: data } = e.target;
+
+    let value: any = data;
     if (name === "image") {
       setIsSvgValid(isValidSvg(value));
+    }
+    if (name === "invoice_closing_day") {
+      value = Number(data);
     }
     setFormData((prev: any) => ({
       ...prev,

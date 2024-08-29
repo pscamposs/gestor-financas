@@ -2,7 +2,9 @@
 import Banks from "@/app/banks/page";
 import Dashboard from "@/app/dashboard/page";
 import Finances from "@/app/finances/page";
+import SettingsPage from "@/app/settings/setting";
 import { ArrowLeftRight, CreditCard, Home, Settings } from "lucide-react";
+import { useSession } from "next-auth/react";
 import React, { useState } from "react";
 
 interface SidebarItemProps {
@@ -37,7 +39,7 @@ const sidebarItems = [
     icon: <CreditCard />,
     page: <Banks />,
   },
-  { label: "settings", icon: <Settings />, page: <div>Settings Page</div> },
+  { label: "settings", icon: <Settings />, page: <SettingsPage /> },
 ];
 
 const Sidebar = ({
@@ -51,6 +53,11 @@ const Sidebar = ({
     setActiveItem(label);
     setView(page);
   };
+
+  const {} = useSession({
+    required: true,
+    onUnauthenticated: () => {},
+  });
 
   return (
     <aside className="p-8 h-screen">

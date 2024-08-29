@@ -1,8 +1,6 @@
-// InvoiceModal.tsx
-import { Banknote } from "lucide-react";
 import { Input } from "../Input";
 import { TextArea } from "../TextArea";
-import useModal from "@/hook/use-modal-context";
+import { useModal } from "@/hook/use-modal-context";
 import { useEffect, useState } from "react";
 import { Selector } from "../Selector";
 import { useQuery } from "@tanstack/react-query";
@@ -37,6 +35,7 @@ export default function InvoiceModal({ data, refetch }: InvoiceModalProps) {
   let initialData = data
     ? {
         ...data,
+        bank: data.bank_label,
         date: new Date(data.date).toISOString().substr(0, 10),
       }
     : {};
@@ -113,7 +112,7 @@ export default function InvoiceModal({ data, refetch }: InvoiceModalProps) {
           />
           <Input
             label="Valor"
-            type="number"
+            type="currency"
             required
             description="Em centavos"
             name="value"

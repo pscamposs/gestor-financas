@@ -1,4 +1,4 @@
-import useModal from "@/hook/use-modal-context";
+import { useModal } from "@/hook/use-modal-context";
 
 export default function ModalContainer() {
   const { isOpen, modal } = useModal();
