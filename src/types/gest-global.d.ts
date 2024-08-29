@@ -1,7 +1,8 @@
 interface ProfileProps {
-  id: number;
-  name: string;
-  salary: number;
+  id?: number;
+  name?: string;
+  salary?: number;
+  email?: string;
 }
 
 interface InvoiceProps {
@@ -52,4 +53,15 @@ interface OptionProps {
 interface SelectorItemProps {
   option: OptionProps;
   onClick: (option: OptionProps) => void;
+}
+
+interface AlertProps {
+  title: string;
+  message: string;
+  variant: "success" | "error";
+}
+
+interface AlertContextProps {
+  sendAlert: (alert: AlertProps) => void;
+  alerts: AlertProps[];
 }
