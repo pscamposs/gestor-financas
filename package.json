@@ -1,7 +1,7 @@
 {
   "name": "gestor-financas",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -11,6 +11,7 @@
   "dependencies": {
     "@tanstack/react-query": "^5.51.21",
     "@types/bcrypt": "^5.0.2",
+    "@uidotdev/usehooks": "^2.4.1",
     "bcrypt": "^5.1.1",
     "lucide-react": "^0.419.0",
     "mysql2": "^3.11.0",
