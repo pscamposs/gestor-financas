@@ -1,37 +1,54 @@
-export const useCalculateTotals = (invoices: InvoiceProps[]) => {
-  const currentDate = new Date();
-  const currentMonth = currentDate.getMonth() + 1;
-  const previousMonth = currentMonth - 1;
-  const currentYear = currentDate.getFullYear();
+import { useMemo } from "react";
 
-  let creditTotal = 0;
-  let monthlyTotal = 0;
-  let annualTotal = 0;
+export const useCalculateTotals = (
+  invoices?: InvoiceProps[],
+  salary?: number
+) => {
+  const { creditTotal, annualTotal, limitTotal } = useMemo(() => {
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth() + 1;
+    const currentYear = currentDate.getFullYear();
 
-  invoices?.forEach((invoice) => {
-    const closingDay = invoice.bank_closing_day;
-    const invoiceDate = new Date(invoice.date);
-    const invoiceYear = invoiceDate.getFullYear();
-    const invoiceMonth = invoiceDate.getMonth() + 1;
-    const invoiceDay = invoiceDate.getDate();
-    const invoiceValue = Number(invoice.value);
+    let creditTotal = 0;
+    let monthlyTotal = 0;
+    let annualTotal = 0;
+    let limitTotal = 0;
 
-    if (invoice.flow === "Saída") {
-      if (invoiceYear === currentYear) {
-        annualTotal += invoiceValue;
+    invoices?.forEach((invoice) => {
+      const closingDay = invoice.bank_closing_day;
+      const invoiceDate = new Date(invoice.date);
+      const invoiceYear = invoiceDate.getFullYear();
+      const invoiceMonth = invoiceDate.getMonth() + 1;
+      const invoiceDay = invoiceDate.getDate();
+      const invoiceValue = Number(invoice.value);
+
+      if (invoice.flow === "Saída") {
+        if (invoiceYear === currentYear) {
+          annualTotal += invoiceValue;
+        } else {
+          return;
+        }
+
+        if (
+          invoice.method === "Crédito" &&
+          invoiceMonth === currentMonth &&
+          invoiceDay <= closingDay
+        ) {
+          creditTotal += invoiceValue;
+          monthlyTotal += invoiceValue;
+        } else if (
+          invoiceMonth === currentMonth &&
+          invoice.method !== "Crédito"
+        ) {
+          monthlyTotal += invoiceValue;
+        }
       }
-      if (invoiceMonth === currentMonth && invoiceYear === currentYear) {
-        monthlyTotal += invoiceValue;
-      } else if (invoiceMonth === previousMonth && invoiceDay >= closingDay) {
-        monthlyTotal += invoiceValue;
-      }
-      if (invoice.method === "Crédito") {
-        creditTotal += invoiceValue;
-      }
-    } else {
-      monthlyTotal -= invoiceValue;
-    }
-  });
+    });
 
-  return { creditTotal, monthlyTotal, annualTotal };
+    if (salary) limitTotal = salary - monthlyTotal;
+
+    return { creditTotal, annualTotal, limitTotal };
+  }, [invoices, salary]);
+
+  return { creditTotal, annualTotal, limitTotal };
 };
