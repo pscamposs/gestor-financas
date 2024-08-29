@@ -26,12 +26,13 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
   const userId = session.user.id;
-
   try {
     const data = await request.json();
 
     const { method, flow, name, date, installments, description, value, bank } =
       data;
+
+    console.log("Data: ", data);
 
     const query = `
       INSERT INTO user_invoices (user_id, date, installments, method, flow, name, description, value, bank_id)
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest) {
       method,
       flow,
       name,
-      description,
+      description || "",
       value,
       bank,
     ]);
@@ -60,8 +61,6 @@ export async function POST(request: NextRequest) {
       }
     );
   } catch (error: any) {
-    console.error(error);
-
     return NextResponse.json(
       {
         error: "Ops, ocorreu um erro.",
